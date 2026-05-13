@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Shadow Generator</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: #f1f5f9; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .card { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
+        h2 { text-align: center; color: #0f172a; margin-bottom: 15px; }
+        .preview { height: 150px; background: #f8fafc; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; }
+        .box { width: 120px; height: 80px; background: #3b82f6; border-radius: 10px; transition: 0.2s; }
+        .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
+        label { font-size: 13px; color: #475569; display: flex; flex-direction: column; gap: 5px; }
+        input { accent-color: #3b82f6; }
+        .type-toggle { display: flex; gap: 8px; margin-bottom: 15px; }
+        .type-btn { flex: 1; padding: 8px; border: 2px solid #e2e8f0; background: transparent; border-radius: 6px; cursor: pointer; font-weight: 500; }
+        .type-btn.active { background: #3b82f6; color: white; border-color: #3b82f6; }
+        .code-box { background: #0f172a; color: #10b981; padding: 12px; border-radius: 8px; font-family: monospace; font-size: 14px; position: relative; word-break: break-all; }
+        .copy { position: absolute; top: 8px; right: 8px; background: #334155; border: none; color: white; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>🌫️ CSS Shadow Generator</h2>
+        <div class="preview"><div class="box" id="previewBox"></div></div>
+        <div class="type-toggle">
+            <button class="type-btn active" onclick="setType('box', this)">Box Shadow</button>
+            <button class="type-btn" onclick="setType('text', this)">Text Shadow</button>
+        </div>
+        <div class="controls">
+            <label>X <input type="range" id="x" min="-20" max="20" value="4"></label>
+            <label>Y <input type="range" id="y" min="-20" max="20" value="6"></label>
+            <label>Blur <input type="range" id="blur" min="0" max="50" value="10"></label>
+            <label>Spread <input type="range" id="spread" min="-10" max="20" value="2"></label>
+            <label>Opacity <input type="range" id="opacity" min="0" max="1" step="0.05" value="0.3"></label>
+            <label>Rang <input type="color" id="color" value="#000000"></label>
+        </div>
+        <div class="code-box">
+            <span id="code"></span>
+            <button class="copy" onclick="copyCSS()">📋</button>
+        </div>
+    </div>
+
+    <script>
+        let type = 'box';
+        const inputs = ['x','y','blur','spread','opacity','color'].map(id => document.getElementById(id));
+
+        function update() {
+            const [x, y, blur, spread, opacity, color] = inputs.map(el => el.value);
+            const shadow = `${x}px ${y}px ${blur}px ${type==='text'?'':spread+'px'} ${color}${Math.round(opacity*255).toString(16).padStart(2,'0')}`;
+            
+            const box = document.getElementById('previewBox');
+            if (type === 'box') {
+                box.style.boxShadow = shadow;
+                box.textContent = '';
+            } else {
+                box.style.boxShadow = 'none';
+                box.style.background = 'transparent';
+                box.style.fontSize = '32px';
+                box.style.fontWeight = 'bold';
+                box.style.color = '#1e293b';
+                box.textContent = 'Matn';
+                box.style.textShadow = shadow;
+            }
+            document.getElementById('code').textContent = `${type}-shadow: ${shadow};`;
+        }
+
+        function setType(t, btn) {
+            type = t;
+            document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            update();
+        }
+
+        inputs.forEach(el => el.addEventListener('input', update));
+        function copyCSS() {
+            navigator.clipboard.writeText(document.getElementById('code').textContent);
+            const btn = document.querySelector('.copy');
+            btn.textContent = '✅';
+            setTimeout(() => btn.textContent = '📋', 1000);
+        }
+        update();
+    </script>
+</body>
+</html>
